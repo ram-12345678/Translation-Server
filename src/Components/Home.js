@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "./SocketProvider";
-import { Row, Col } from 'antd'
+import { Form, Row, Col, Button, Input} from 'antd'
 import './Home.css';
+
 
 const HomePage = () => {
     const [email, setEmail] = useState("");
@@ -35,47 +36,70 @@ const HomePage = () => {
     }, [socket, handleJoinRoom]);
 
     return (
-        <div>
-            <div className="heading">
-                <h2>Welcome to My Translation Web Page</h2>
-            </div>
-            <form onSubmit={handleSubmitForm}>
-                <Row className="heading">
-                    <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                        <Row className='bottumPadd6'  gutter={8}>
-                            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                                <label htmlFor="email">Email ID</label>
-                            </Col>
-                            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                                <input
+        <div className="container">
+            <h1>Welcome to My Translation Web Page</h1>
+            <Form
+                name="basic"
+                labelCol={{
+                    span: 8,
+                }}
+                wrapperCol={{
+                    span: 16,
+                }}
+              
+                initialValues={{
+                    remember: true,
+                }}
+                onFinish={handleSubmitForm}
+                autoComplete="off"
+            >
+                <Row>
+                    <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                            <Form.Item
+                                label="Email ID"
+                                name="email"
+                                rules={[{ required: true, message: 'Please Enter Email ID' },
+                                ]}
+                            >
+                                <Input
                                     type="email"
                                     id="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
-                            </Col>
-                        </Row>
-                        <Row className='bottumPadd6'  gutter={8}>
-                            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                                <label htmlFor="room">Room Number</label>
-                            </Col>
-                            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                                <input
-                                    type="text"
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                            <Form.Item
+                                label="Room Number"
+                                name="room"
+                                rules={[{ required: true, message: 'Please Enter Room Number' },
+                                ]}
+                            >
+                                <Input
+                                    type="number"
                                     id="room"
                                     value={room}
                                     onChange={(e) => setRoom(e.target.value)}
                                 />
-                            </Col>
-                        </Row>
-                        <Row >
-                            <Col xs={24} sm={24} md={24} lg={24} xl={24} className="leftPadd">
-                                <button style={{ width: "20%" }}>Join</button>
-                            </Col>
-                        </Row>
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                            <Form.Item
+                                wrapperCol={{
+                                    offset: 8,
+                                    span: 16,
+                                }}
+                            >
+                                <Button type="primary" htmlType="submit">
+                                    Join
+                                </Button>
+                            </Form.Item>
+                        </Col>
                     </Col>
                 </Row>
-            </form>
+            </Form>
         </div>
     );
 };
