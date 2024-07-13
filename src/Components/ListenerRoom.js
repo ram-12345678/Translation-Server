@@ -7,7 +7,6 @@ const ListenerRoomPage = () => {
   const socket = useSocket();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [remoteStream, setRemoteStream] = useState();
-  const [isSpeakerEnabled, setIsSpeakerEnabled] = useState(true);
 
   const handleUserJoined = useCallback(({ email, id }) => {
     setRemoteSocketId(id);
@@ -89,9 +88,6 @@ const ListenerRoomPage = () => {
     }
   }, [remoteSocketId]);
 
-  const toggleSpeaker = () => {
-    setIsSpeakerEnabled(!isSpeakerEnabled);
-  };
 
   return (
     <div>
@@ -101,16 +97,13 @@ const ListenerRoomPage = () => {
           <audio
             controls
             autoPlay
-            muted={!isSpeakerEnabled}
+            muted={false}
             ref={(audio) => {
               if (audio && remoteStream) {
                 audio.srcObject = remoteStream;
               }
             }}
           />
-          <button onClick={toggleSpeaker}>
-            {isSpeakerEnabled ? 'Mute Speaker' : 'Unmute Speaker'}
-          </button>
         </>
       )}
     </div>

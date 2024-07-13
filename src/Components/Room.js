@@ -2,14 +2,12 @@ import React, { useEffect, useCallback, useState } from "react";
 import peer from "./peer";
 import { useSocket } from "./SocketProvider";
 import { message } from "antd";
-
+import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 const RoomPage = () => {
   const socket = useSocket();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
-  const [remoteStream, setRemoteStream] = useState();
   const [isMuted, setIsMuted] = useState(false);
-  const [isSpeakerEnabled, setIsSpeakerEnabled] = useState(true);
 
   const handleCallUser = useCallback(async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -88,11 +86,6 @@ const RoomPage = () => {
   }, []);
 
   useEffect(() => {
-    peer.peer.addEventListener("track", async (ev) => {
-      const remoteStream = ev.streams;
-    console.log("GOT TRACKS!!");
-    setRemoteStream(remoteStream[0]);
-    });
     if (remoteSocketId)
       message.success('Both are successfully connected.');
   }, [remoteSocketId]);
@@ -129,29 +122,15 @@ const RoomPage = () => {
     }
   };
 
-  const toggleSpeaker = () => {
-    setIsSpeakerEnabled(!isSpeakerEnabled);
-  };
-
   return (
     <div>
       <h1>Host Room Page</h1>
-      <h4>{remoteSocketId ? message.success("Both are successfully connected.") : "No one in room"}</h4>
-     
+      <h4>{remoteSocketId ? "Connected" : "No one in room"}</h4>
       {myStream && (
-        <>
-          <audio
-            controls
-            autoPlay={false}
-            muted={!isSpeakerEnabled}
-            ref={(audio) => {
-              if (audio && myStream) {
-                audio.srcObject = myStream;
-              }
-            }}
-          />
-           <button onClick={toggleSpeaker}>{isSpeakerEnabled ? "Disable Speaker" : "Enable Speaker"}</button>
-        </>
+        <button onClick={toggleMute}>
+          {isMuted ?  <FaMicrophoneSlash />:<FaMicrophone /> }
+          {isMuted ?  " Unmute Microphone":" Mute Microphone" }
+        </button>
       )}
     </div>
   );
