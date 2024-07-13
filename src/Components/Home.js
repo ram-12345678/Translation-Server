@@ -1,29 +1,31 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "./SocketProvider";
-import { Form, Row, Col, Button, Input} from 'antd'
+import { Form, Row, Col, Button, Input } from 'antd'
 import './Home.css';
 
 
 const HomePage = () => {
-    const [email, setEmail] = useState("");
-    const [room, setRoom] = useState("");
+    const [email, setEmail] = useState('');
+    const [room, setRoom] = useState('');
+    const [profileId, setProfileId] = useState('');
 
     const socket = useSocket();
     const navigate = useNavigate();
 
     const handleSubmitForm = useCallback(
-        (e) => {
-            e.preventDefault();
-            socket.emit("room:join", { email, room });
+        () => {
+            socket.emit("room:join", { email, room, profileId });
         },
-        [email, room, socket]
+        [email, room,profileId, socket]
     );
 
     const handleJoinRoom = useCallback(
         (data) => {
-            const { email, room } = data;
-            navigate(`/room/${room}`);
+            const {  room, profileId } = data;
+            if (room && profileId) {
+                navigate(profileId === '1' ? `/room/${room}` : `/listenerRoom/${room}`);
+            }
         },
         [navigate]
     );
@@ -46,7 +48,7 @@ const HomePage = () => {
                 wrapperCol={{
                     span: 16,
                 }}
-              
+
                 initialValues={{
                     remember: true,
                 }}
@@ -82,6 +84,21 @@ const HomePage = () => {
                                     id="room"
                                     value={room}
                                     onChange={(e) => setRoom(e.target.value)}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                            <Form.Item
+                                label="Profile ID"
+                                name="profile"
+                                rules={[{ required: true, message: 'Please Enter Profile ID' },
+                                ]}
+                            >
+                                <Input
+                                    type="number"
+                                    id="profile"
+                                    value={profileId}
+                                    onChange={(e) => setProfileId(e.target.value)}
                                 />
                             </Form.Item>
                         </Col>

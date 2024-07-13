@@ -3,29 +3,11 @@ import peer from "./peer";
 import { useSocket } from "./SocketProvider";
 import { message } from "antd";
 
-const RoomPage = () => {
+const ListenerRoomPage = () => {
   const socket = useSocket();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
-  const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
-  const [isMuted, setIsMuted] = useState(false);
   const [isSpeakerEnabled, setIsSpeakerEnabled] = useState(true);
-
-  const handleCallUser = useCallback(async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: false,
-    });
-    const offer = await peer.getOffer();
-    socket.emit("user:call", { to: remoteSocketId, offer });
-    setMyStream(stream);
-  }, [remoteSocketId, socket]);
-
-  useEffect(() => {
-    if (remoteSocketId) {
-      handleCallUser();
-    }
-  }, [socket, remoteSocketId, handleCallUser]);
 
   const handleUserJoined = useCallback(({ email, id }) => {
     setRemoteSocketId(id);
@@ -34,33 +16,17 @@ const RoomPage = () => {
   const handleIncommingCall = useCallback(
     async ({ from, offer }) => {
       setRemoteSocketId(from);
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false,
-      });
-      setMyStream(stream);
-      // console.log(`Incoming Call`, from, offer);
       const ans = await peer.getAnswer(offer);
       socket.emit("call:accepted", { to: from, ans });
     },
     [socket]
   );
 
-  const sendStreams = useCallback(() => {
-    if (myStream) {
-      for (const track of myStream.getTracks()) {
-        peer.peer.addTrack(track, myStream);
-      }
-    }
-  }, [myStream]);
-
   const handleCallAccepted = useCallback(
     ({ from, ans }) => {
       peer.setLocalDescription(ans);
-      // console.log("Call Accepted!");
-      sendStreams();
     },
-    [sendStreams]
+    []
   );
 
   const handleNegoNeeded = useCallback(async () => {
@@ -88,14 +54,11 @@ const RoomPage = () => {
   }, []);
 
   useEffect(() => {
-    peer.peer.addEventListener("track", async (ev) => {
-      const remoteStream = ev.streams;
-    console.log("GOT TRACKS!!");
-    setRemoteStream(remoteStream[0]);
+    peer.peer.addEventListener("track", (ev) => {
+      const remoteStream = ev.streams[0];
+      setRemoteStream(remoteStream);
     });
-    if (remoteSocketId)
-      message.success('Both are successfully connected.');
-  }, [remoteSocketId]);
+  }, []);
 
   useEffect(() => {
     socket.on("user:joined", handleUserJoined);
@@ -120,14 +83,11 @@ const RoomPage = () => {
     handleNegoNeedFinal,
   ]);
 
-  const toggleMute = () => {
-    if (myStream) {
-      myStream.getAudioTracks().forEach((track) => {
-        track.enabled = !track.enabled;
-      });
-      setIsMuted(!isMuted);
+  useEffect(() => {
+    if (remoteSocketId) {
+      message.success('Both are successfully connected.');
     }
-  };
+  }, [remoteSocketId]);
 
   const toggleSpeaker = () => {
     setIsSpeakerEnabled(!isSpeakerEnabled);
@@ -135,26 +95,26 @@ const RoomPage = () => {
 
   return (
     <div>
-      <h1>Host Room Page</h1>
-      <h4>{remoteSocketId ? message.success("Both are successfully connected.") : "No one in room"}</h4>
-     
-      {myStream && (
+      {remoteStream && (
         <>
+          <h1>Remote Audio Stream</h1>
           <audio
             controls
-            autoPlay={false}
+            autoPlay
             muted={!isSpeakerEnabled}
             ref={(audio) => {
-              if (audio && myStream) {
-                audio.srcObject = myStream;
+              if (audio && remoteStream) {
+                audio.srcObject = remoteStream;
               }
             }}
           />
-           <button onClick={toggleSpeaker}>{isSpeakerEnabled ? "Disable Speaker" : "Enable Speaker"}</button>
+          <button onClick={toggleSpeaker}>
+            {isSpeakerEnabled ? 'Mute Speaker' : 'Unmute Speaker'}
+          </button>
         </>
       )}
     </div>
   );
 };
 
-export default RoomPage;
+export default ListenerRoomPage;
