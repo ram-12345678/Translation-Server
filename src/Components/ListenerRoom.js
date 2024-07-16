@@ -87,8 +87,6 @@ const ListenerRoomPage = () => {
       message.success('Both are successfully connected.');
     }
   }, [remoteSocketId]);
-
-
   return (
     <div>
       {remoteStream && (

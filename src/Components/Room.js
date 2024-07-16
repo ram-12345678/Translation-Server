@@ -3,10 +3,13 @@ import peer from "./peer";
 import { useSocket } from "./SocketProvider";
 import { message } from "antd";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
+// import axios from 'axios';
 const RoomPage = () => {
   const socket = useSocket();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
+  // const [translatedStream, setTranslatedStream] = useState();
+
   const [isMuted, setIsMuted] = useState(false);
 
   const handleCallUser = useCallback(async () => {
@@ -19,11 +22,35 @@ const RoomPage = () => {
     setMyStream(stream);
   }, [remoteSocketId, socket]);
 
+  // const translateAudio = async (audioChunks, targetLanguage) => {
+  //     await axios.post('https://98.70.15.100:443/translate', {
+  //       audio_chunk: audioChunks,
+  //       target_language: targetLanguage
+  //     })
+  //     .then(response => {
+  //       return response?.data?.translated_text;
+  //    })
+  //    .then(data => {
+  //       console.log(data)
+  //       setTranslatedStream(data);
+  //       return data;
+  //    })
+  //    .catch(error => {
+  //       console.log(error?.response?.data?.error,'error.response.data.error',error,'error')
+  //    })
+  // }
+
   useEffect(() => {
     if (remoteSocketId) {
       handleCallUser();
     }
   }, [socket, remoteSocketId, handleCallUser]);
+
+  // useEffect(() => {
+  //   if (myStream) {
+  //     translateAudio(myStream, 'en-US');
+  //   }
+  // }, [myStream, translateAudio]);
 
   const handleUserJoined = useCallback(({ email, id }) => {
     setRemoteSocketId(id);
@@ -51,7 +78,7 @@ const RoomPage = () => {
       }
     }
   }, [myStream]);
-
+console.log(myStream,'myStream')
   const handleCallAccepted = useCallback(
     ({ from, ans }) => {
       peer.setLocalDescription(ans);
@@ -128,8 +155,8 @@ const RoomPage = () => {
       <h4>{remoteSocketId ? "Connected" : "No one in room"}</h4>
       {myStream && (
         <button onClick={toggleMute}>
-          {isMuted ?  <FaMicrophoneSlash />:<FaMicrophone /> }
-          {isMuted ?  " Unmute Microphone":" Mute Microphone" }
+          {isMuted ? <FaMicrophoneSlash /> : <FaMicrophone />}
+          {isMuted ? " Unmute Microphone" : " Mute Microphone"}
         </button>
       )}
     </div>

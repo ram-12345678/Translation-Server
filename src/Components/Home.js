@@ -1,15 +1,18 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "./SocketProvider";
-import { Form, Row, Col, Button, Input } from 'antd'
+import { Form, Row, Col, Button, Input, Select } from 'antd'
 import './Home.css';
-
+import { languages } from "../constants/languages";
+const { Option } = Select;
 
 const HomePage = () => {
     const [email, setEmail] = useState('');
     const [room, setRoom] = useState('');
     const [profileId, setProfileId] = useState('');
+    const [languageCode, setLanguageCode] = useState('');
 
+    console.log(languageCode, 'languageCode')
     const socket = useSocket();
     const navigate = useNavigate();
 
@@ -17,12 +20,12 @@ const HomePage = () => {
         () => {
             socket.emit("room:join", { email, room, profileId });
         },
-        [email, room,profileId, socket]
+        [email, room, profileId, socket]
     );
 
     const handleJoinRoom = useCallback(
         (data) => {
-            const {  room, profileId } = data;
+            const { room, profileId } = data;
             if (room && profileId) {
                 navigate(profileId === '1' ? `/room/${room}` : `/listenerRoom/${room}`);
             }
@@ -37,6 +40,9 @@ const HomePage = () => {
         };
     }, [socket, handleJoinRoom]);
 
+    const onChangeLanguage = (value) => {
+        setLanguageCode(value)
+    }
     return (
         <div className="container">
             <h1>Welcome to My Translation Web Page</h1>
@@ -56,7 +62,7 @@ const HomePage = () => {
                 autoComplete="off"
             >
                 <Row>
-                    <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                    <Col xs={24} sm={24} md={20} lg={20} xl={20}>
                         <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                             <Form.Item
                                 label="Email ID"
@@ -102,6 +108,18 @@ const HomePage = () => {
                                 />
                             </Form.Item>
                         </Col>
+                        {profileId === '2' && <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                            <Form.Item
+                                label="Language"
+                                name="language"
+                                rules={[{ required: true, message: 'Please Select Language' },
+                                ]}
+                            >
+                                <Select onChange={onChangeLanguage}>
+                                    {languages.map(item => <Option key={item.id} value={item.code} >{item.name}</Option>)}
+                                </Select>
+                            </Form.Item>
+                        </Col>}
                         <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                             <Form.Item
                                 wrapperCol={{
