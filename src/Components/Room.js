@@ -56,6 +56,7 @@ const RoomPage = () => {
     setRemoteSocketId(id);
   }, []);
 
+  
   const handleIncommingCall = useCallback(
     async ({ from, offer }) => {
       setRemoteSocketId(from);
