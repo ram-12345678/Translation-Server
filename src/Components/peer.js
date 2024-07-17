@@ -1,6 +1,6 @@
 import { message } from "antd";
 
-class PeerService {
+class PeerServiceBase {
   constructor() {
     if (!this.peer) {
       this.peer = new RTCPeerConnection({
@@ -51,5 +51,5 @@ class PeerService {
     }
   }
 }
-
-export default new PeerService();
+const PeerService = new PeerServiceBase();
+export default PeerService;
